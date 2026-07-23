@@ -121,7 +121,8 @@ jobs:
             fi
           done
 
-          make ${{ matrix.arch }}
+          ./configure --host=${{ matrix.arch }}
+          make
 
       - name: Package artifacts
         run: |
@@ -129,12 +130,7 @@ jobs:
           VER="${{ needs.check_version.outputs.FRIDA_VERSION }}"
           mkdir -p dist
 
-          BUILD_DIR=$(find frida/build -maxdepth 2 -type d -name "frida-$ARCH" -o -name "*$ARCH*" | head -n 1)
-          
-          if [ -z "$BUILD_DIR" ]; then
-            echo "Error: Cannot find build directory for $ARCH"
-            exit 1
-          fi
+          BUILD_DIR="frida/build"
 
           SERVER_BIN=$(find "$BUILD_DIR" -type f -name "frida-server" | head -n 1)
           INJECT_BIN=$(find "$BUILD_DIR" -type f -name "frida-inject" | head -n 1)
