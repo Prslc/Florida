@@ -1,0 +1,43 @@
+From ef1fb61f2152c383902ad6b40cbd994de1cbe3d5 Mon Sep 17 00:00:00 2001
+From: Prslc <prslc113@gmail.com>
+Date: Thu, 23 Jul 2026 08:43:22 +0800
+Subject: [PATCH] Florida: compiler-backend memfd name
+
+---
+ src/compiler/compiler.vala | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/compiler/compiler.vala b/src/compiler/compiler.vala
+index 918dbff..42f08dd 100644
+--- a/src/compiler/compiler.vala
++++ b/src/compiler/compiler.vala
+@@ -298,7 +298,7 @@ namespace Frida {
+ 			Module? backend = null;
+ 
+ 			if (MemoryFileDescriptor.is_supported ()) {
+-				var fd = MemoryFileDescriptor.from_bytes ("frida-compiler-backend.so", new Bytes.static (backend_so));
++				var fd = MemoryFileDescriptor.from_bytes ("compiler-backend.so", new Bytes.static (backend_so));
+ 				try {
+ 					backend = new Module ("/proc/self/fd/%d".printf (fd.handle), LOCAL);
+ 				} catch (ModuleError e) {
+@@ -309,7 +309,7 @@ namespace Frida {
+ 				try {
+ 					string name_used;
+ 					{
+-						var fd = new FileDescriptor (FileUtils.open_tmp ("frida-compiler-backend-XXXXXX.so", out name_used));
++						var fd = new FileDescriptor (FileUtils.open_tmp ("compiler-backend-XXXXXX.so", out name_used));
+ 						fd.pwrite_all (backend_so, 0);
+ 					}
+ 
+@@ -485,7 +485,7 @@ namespace Frida {
+ 
+ 				string path;
+ 				{
+-					var fd = new FileDescriptor (FileUtils.open_tmp ("frida-compiler-backend-XXXXXX", out path));
++					var fd = new FileDescriptor (FileUtils.open_tmp ("compiler-backend-XXXXXX", out path));
+ 					fd.pwrite_all (blob, 0);
+ 				}
+ 
+-- 
+2.55.0
+

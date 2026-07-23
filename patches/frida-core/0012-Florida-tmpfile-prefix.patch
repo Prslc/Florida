@@ -1,0 +1,25 @@
+From e1273809b0ddcf7f16b223e5c3804750c2538845 Mon Sep 17 00:00:00 2001
+From: Prslc <prslc113@gmail.com>
+Date: Thu, 23 Jul 2026 08:43:28 +0800
+Subject: [PATCH] Florida: tmpfile prefix
+
+---
+ lib/payload/libc-shim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/payload/libc-shim.c b/lib/payload/libc-shim.c
+index 862737f..98a57cd 100644
+--- a/lib/payload/libc-shim.c
++++ b/lib/payload/libc-shim.c
+@@ -1520,7 +1520,7 @@ tmpfile (void)
+   gchar * path;
+   FridaFile * impl;
+ 
+-  fd = g_file_open_tmp ("frida-XXXXXX", &path, NULL);
++  fd = g_file_open_tmp ("tmp-XXXXXX", &path, NULL);
+   if (fd == -1)
+     return NULL;
+ 
+-- 
+2.55.0
+
