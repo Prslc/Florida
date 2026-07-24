@@ -1,0 +1,28 @@
+From 5c66aa5de82c9d8ce7c9438e458957189d066782 Mon Sep 17 00:00:00 2001
+From: Prslc <prslc113@gmail.com>
+Date: Fri, 24 Jul 2026 10:14:31 +0800
+Subject: [PATCH] Florida: zymbiote socket name
+
+Abstract Unix socket @/frida-zymbiote-<uuid> visible in /proc/net/unix.
+Only change the bind-time path; the template in the prebuilt zymbiote.elf
+and the memmem search string are internal anchors and must stay as-is.
+
+---
+ src/linux/linux-host-session.vala | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/linux/linux-host-session.vala b/src/linux/linux-host-session.vala
+index 49bc399..8b2c4f1 100644
+--- a/src/linux/linux-host-session.vala
++++ b/src/linux/linux-host-session.vala
+@@ -1568,7 +1568,7 @@ namespace Frida {
+ 			ensure_request = new Promise<bool> ();
+
+ 			if (server_name == null) {
+-				string name = "/frida-zymbiote-" + Uuid.string_random ().replace ("-", "");
++				string name = "/zymbiote-" + Uuid.string_random ().replace ("-", "");
+ 				var address = new UnixSocketAddress.with_type (name, -1, UnixSocketAddressType.ABSTRACT);
+
+ 				try {
+--
+2.55.0
