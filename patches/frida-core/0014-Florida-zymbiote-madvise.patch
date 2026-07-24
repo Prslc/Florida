@@ -1,0 +1,53 @@
+From 4d90c2c649f9c0089e550190e671646add1fd0fe Mon Sep 17 00:00:00 2001
+From: Prslc <prslc113@gmail.com>
+Date: Fri, 24 Jul 2026 15:39:51 +0800
+Subject: [PATCH] Florida: drop zymbiote CoW page with MADV_DONTNEED
+
+---
+ src/linux/helpers/zymbiote.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/src/linux/helpers/zymbiote.c b/src/linux/helpers/zymbiote.c
+index b9fa526..39fb406 100644
+--- a/src/linux/helpers/zymbiote.c
++++ b/src/linux/helpers/zymbiote.c
+@@ -4,7 +4,28 @@
+ #include <stdbool.h>
+ #include <sys/mman.h>
+ #include <sys/socket.h>
++#include <sys/syscall.h>
+ #include <sys/un.h>
++#include <unistd.h>
++
++#ifdef __aarch64__
++# define __NR_madvise 233
++#elif defined(__arm__)
++# define __NR_madvise 220
++#elif defined(__x86_64__)
++# define __NR_madvise 28
++#elif defined(__i386__)
++# define __NR_madvise 219
++#endif
++
++#define MADV_DONTNEED 4
++
++static inline long
++frida_sys_madvise (void * addr, size_t len, int advice)
++{
++  return syscall (__NR_madvise, addr, len, advice);
++}
++
+ 
+ typedef struct _ZymbioteContext ZymbioteContext;
+ 
+@@ -104,6 +125,7 @@ frida_zymbiote_replacement_setargv0 (JNIEnv * env, jobject clazz, jstring name)
+ 
+   if (revert_now)
+   {
++    frida_sys_madvise (zymbiote.payload_base, zymbiote.payload_size, MADV_DONTNEED);
+     __attribute__ ((musttail))
+     return frida_stop_and_return_from_setargv0 (env, clazz, name);
+   }
+-- 
+2.55.0
+
