@@ -1,8 +1,6 @@
 name: Florida
 
 on:
-  schedule:
-    - cron: "0 9/12 * * *"
   workflow_dispatch:
   push:
     branches: ["main", "ci"]
@@ -31,17 +29,10 @@ jobs:
             EXISTS=false
           fi
 
-          IS_MANUAL="${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}"
-
           if [ "$EXISTS" = "true" ]; then
-            if [ "$IS_MANUAL" = "true" ]; then
-              echo "Re-release: Remove the old release and rebuild"
-              gh release delete "$LATEST_VER" --repo "${{ github.repository }}" --yes --cleanup-tag
-              echo "SHOULD_BUILD=true" >> $GITHUB_OUTPUT
-            else
-              echo "Scheduled task: Version already exists, skip build."
-              echo "SHOULD_BUILD=false" >> $GITHUB_OUTPUT
-            fi
+            echo "Re-release: Remove the old release and rebuild"
+            gh release delete "$LATEST_VER" --repo "${{ github.repository }}" --yes --cleanup-tag
+            echo "SHOULD_BUILD=true" >> $GITHUB_OUTPUT
           else
             echo "New version triggers build"
             echo "SHOULD_BUILD=true" >> $GITHUB_OUTPUT
