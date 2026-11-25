@@ -1,0 +1,34 @@
+name: Check patches
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "ci"]
+    paths:
+      - ".github/workflows/check-patches.yml"
+      - "scripts/check-patches.sh"
+      - "patches/**"
+  pull_request:
+    paths:
+      - ".github/workflows/check-patches.yml"
+      - "scripts/check-patches.sh"
+      - "patches/**"
+  schedule:
+    # Upstream moves even when this repo does not.
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-patches-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify patches against frida main
+        run: ./scripts/check-patches.sh

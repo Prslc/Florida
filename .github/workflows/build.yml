@@ -8,8 +8,16 @@ on:
       - ".github/workflows/build.yml"
       - "patches/**"
 
-jobs: 
+jobs:
+  check_patches:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check patches against upstream
+        run: ./scripts/check-patches.sh
+
   check_version:
+    needs: check_patches
     runs-on: ubuntu-22.04
     outputs:
       FRIDA_VERSION: ${{ steps.check.outputs.FRIDA_VERSION }}
