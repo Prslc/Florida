@@ -1,0 +1,28 @@
+From 00ef1f9fb99653f2df8a60c3a8e51e8203234497 Mon Sep 17 00:00:00 2001
+From: Prslc <prslc113@gmail.com>
+Date: Wed, 25 Nov 2026 20:15:00 +0800
+Subject: [PATCH] Florida: thread worker name
+
+gum_process_modify_thread() creates a helper thread named
+"gum-modify-thread-worker" inside the target process, which shows up in
+/proc/self/task/*/comm. Drop the gum- prefix.
+---
+ gum/backend-linux/gumprocess-linux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gum/backend-linux/gumprocess-linux.c b/gum/backend-linux/gumprocess-linux.c
+index 3093aafb..bf7561b5 100644
+--- a/gum/backend-linux/gumprocess-linux.c
++++ b/gum/backend-linux/gumprocess-linux.c
+@@ -794,7 +794,7 @@ gum_linux_modify_thread (GumThreadId thread_id,
+   if (thread_id == gum_process_get_current_thread_id ())
+   {
+     result = GPOINTER_TO_UINT (g_thread_join (g_thread_new (
+-            "gum-modify-thread-worker",
++            "modify-thread-worker",
+             gum_linux_handle_modify_thread_comms,
+             &ctx)));
+   }
+-- 
+2.56.1
+

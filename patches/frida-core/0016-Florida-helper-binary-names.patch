@@ -1,0 +1,37 @@
+From 457160e51fc486a5b97cca1fff928bb727df2285 Mon Sep 17 00:00:00 2001
+From: Prslc <prslc113@gmail.com>
+Date: Wed, 25 Nov 2026 20:05:00 +0800
+Subject: [PATCH] Florida: helper binary names
+
+The embedded helper binaries surfaced as memfd names
+"frida-helper-32"/"frida-helper-64", e.g. in /proc/<pid>/maps, and as
+temp-file names when memfd is unavailable. Use a random prefix instead.
+---
+ src/linux/frida-helper-process.vala | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/linux/frida-helper-process.vala b/src/linux/frida-helper-process.vala
+index 7fa878cd..19fe572a 100644
+--- a/src/linux/frida-helper-process.vala
++++ b/src/linux/frida-helper-process.vala
+@@ -653,13 +653,15 @@ namespace Frida {
+ 			this.tempdir = tempdir;
+ 
+ #if HAVE_EMBEDDED_ASSETS
++			var name_prefix = Uuid.string_random ();
++
+ 			var blob32 = Frida.Data.Helper.get_frida_helper_32_blob ();
+ 			if (blob32.data.length > 0)
+-				helper32 = make_temporary_helper ("frida-helper-32", blob32.data);
++				helper32 = make_temporary_helper (name_prefix + "-32", blob32.data);
+ 
+ 			var blob64 = Frida.Data.Helper.get_frida_helper_64_blob ();
+ 			if (blob64.data.length > 0)
+-				helper64 = make_temporary_helper ("frida-helper-64", blob64.data);
++				helper64 = make_temporary_helper (name_prefix + "-64", blob64.data);
+ #else
+ 			var tpl = PathTemplate (Frida.helper_path);
+ 			string path = tpl.expand ((sizeof (void *) == 8) ? "32" : "64");
+-- 
+2.56.1
+

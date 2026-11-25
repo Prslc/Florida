@@ -1,0 +1,69 @@
+From eb415464be369730037b59ff4f48e27245aaa4f2 Mon Sep 17 00:00:00 2001
+From: Prslc <prslc113@gmail.com>
+Date: Wed, 25 Nov 2026 20:00:00 +0800
+Subject: [PATCH] Florida: abstract socket names
+
+Helper bootstrap and agent fallback sockets were bound as
+@/frida-<uuid>, visible in /proc/net/unix. Use a bare random name instead.
+---
+ src/linux/frida-helper-backend.vala | 2 +-
+ src/linux/frida-helper-process.vala | 2 +-
+ src/linux/kernel-injector.vala      | 2 +-
+ src/linux/proc-mem-injector.vala    | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/linux/frida-helper-backend.vala b/src/linux/frida-helper-backend.vala
+index 689bc482..4ce4d026 100644
+--- a/src/linux/frida-helper-backend.vala
++++ b/src/linux/frida-helper-backend.vala
+@@ -1275,7 +1275,7 @@ namespace Frida {
+ 		}
+ 
+ 		private static string make_fallback_address () {
+-			return "/frida-" + Uuid.string_random ();
++			return "/" + Uuid.string_random ();
+ 		}
+ 
+ 		private Future<RemoteAgent> establish_connection (LoaderLaunch launch, InjectSpec spec, BootstrapResult bres,
+diff --git a/src/linux/frida-helper-process.vala b/src/linux/frida-helper-process.vala
+index 7a150c65..7fa878cd 100644
+--- a/src/linux/frida-helper-process.vala
++++ b/src/linux/frida-helper-process.vala
+@@ -340,7 +340,7 @@ namespace Frida {
+ 			TimeoutSource? timeout_source = null;
+ 
+ 			try {
+-				string socket_path = "/frida-" + Uuid.string_random ();
++				string socket_path = "/" + Uuid.string_random ();
+ 				string socket_address = "unix:abstract=" + socket_path;
+ 
+ 				service = new SocketService ();
+diff --git a/src/linux/kernel-injector.vala b/src/linux/kernel-injector.vala
+index 881b472d..d79be8fb 100644
+--- a/src/linux/kernel-injector.vala
++++ b/src/linux/kernel-injector.vala
+@@ -400,7 +400,7 @@ namespace Frida {
+ 		}
+ 
+ 		private static string make_fallback_address () {
+-			return "/frida-" + Uuid.string_random ();
++			return "/" + Uuid.string_random ();
+ 		}
+ 
+ 		private static uint8[] make_cstring (string str) {
+diff --git a/src/linux/proc-mem-injector.vala b/src/linux/proc-mem-injector.vala
+index 7a816d11..a6e01fa4 100644
+--- a/src/linux/proc-mem-injector.vala
++++ b/src/linux/proc-mem-injector.vala
+@@ -975,7 +975,7 @@ namespace Frida {
+ 		}
+ 
+ 		private static string make_fallback_address () {
+-			return "/frida-" + Uuid.string_random ();
++			return "/" + Uuid.string_random ();
+ 		}
+ 
+ 		private static uint8[] make_cstring (string str) {
+-- 
+2.56.1
+

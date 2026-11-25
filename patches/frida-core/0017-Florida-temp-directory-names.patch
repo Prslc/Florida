@@ -1,0 +1,53 @@
+From 7ae837105177ea74a314d03c19afc624a7362178 Mon Sep 17 00:00:00 2001
+From: Prslc <prslc113@gmail.com>
+Date: Wed, 25 Nov 2026 20:10:00 +0800
+Subject: [PATCH] Florida: temp directory names
+
+frida-server stored its temporaries in "re.frida.server" under the system
+temp directory, and TemporaryDirectory used a "frida-" prefix for random
+names. Both leak through /data/local/tmp and /tmp listings. Use a random
+per-process name for the server directory and a neutral prefix for the
+generated ones.
+---
+ server/server.vala | 4 +++-
+ src/system.vala    | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/server/server.vala b/server/server.vala
+index b34a3afb..6e1969f3 100644
+--- a/server/server.vala
++++ b/server/server.vala
+@@ -3,7 +3,7 @@ using Efni;
+ namespace Frida.Server {
+ 	private static Application application;
+ 
+-	private const string DEFAULT_DIRECTORY = "re.frida.server";
++	private static string? DEFAULT_DIRECTORY = null;
+ 	private static bool output_version = false;
+ 	private static string? device_id = null;
+ 	private static string? listen_address = null;
+@@ -56,6 +56,8 @@ namespace Frida.Server {
+ 	private static int main (string[] args) {
+ 		Environment.init ();
+ 
++		DEFAULT_DIRECTORY = GLib.Uuid.string_random ();
++
+ #if DARWIN
+ 		if (Path.get_basename (args[0]) == "frida-policyd") {
+ 			return Policyd._main ();
+diff --git a/src/system.vala b/src/system.vala
+index 998ef8cc..d9023771 100644
+--- a/src/system.vala
++++ b/src/system.vala
+@@ -238,7 +238,7 @@ namespace Frida {
+ 		}
+ 
+ 		public static string make_name () {
+-			var builder = new StringBuilder ("frida-");
++			var builder = new StringBuilder ("tmp-");
+ 			for (var i = 0; i != 16; i++)
+ 				builder.append_printf ("%02x", Random.int_range (0, 256));
+ 			return builder.str;
+-- 
+2.56.1
+
